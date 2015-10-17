@@ -4,6 +4,7 @@ require.config({
     
 	// alias libraries paths
     paths: {
+        "jquery": "../lib/jquery/dist/jquery",
         'angular': '../lib/angular/angular',
         'angular-route': '../lib/angular/angular-route',
         'async': '../lib/requirejs/async',

@@ -1,10 +1,39 @@
-define(['angularAMD', 'angular-route'], function (angularAMD) {
+define(['angularAMD', 'angular-route', 'jquery'], function (angularAMD) {
     var app = angular.module("ngreq-app", ['ngRoute']);
     
     /**
      * Configure Angular ngApp with route and cache the needed providers
      */
-    app.config(function ($routeProvider) {
+    app.config(function ($routeProvider, $sceDelegateProvider) {
+        $sceDelegateProvider.resourceUrlWhitelist([
+            // Allow same origin resource loads.
+            'self',
+            // Allow loading from our assets domain.  Notice the difference between * and **.
+            'http://localhost:9778/**'
+        ]);
+        
+        jQuery.ajax({
+            url: "http://localhost:9778/www/config.json",
+            async: false,
+            
+        }).success(function (data) {
+            angular.forEach(data.routes, function (route) {
+                console.log('route:', route);
+                
+                require.config({
+                    paths: {
+                        "resource": 'http://localhost:9778/www/js/lib/angular-resource/angular-resource'
+                    }
+                });
+                
+                $routeProvider
+                .when("/" + route.name, angularAMD.route({
+                    templateUrl: "http://localhost:9778/www/" + route.template, controller: route.controller, controllerUrl: "http://localhost:9778/www/" + route.controllerUrl, navTab: route.name
+                }));
+            });
+        });
+        
+        
         $routeProvider
             .when("/home", angularAMD.route({
                 templateUrl: 'views/home.html', controller: 'HomeController', navTab: "home"
